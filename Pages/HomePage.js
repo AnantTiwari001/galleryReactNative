@@ -6,12 +6,18 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const HomePage = () => {
-    const [images, setImages]= useState([]);
+    const [images, setImages] = useState([]);
     const urlArray = useRef([])
-    const recentPhoto = 'https://www.flickr.com/services/rest/?method=flickr.photos.getRecent&api_key=067a39dcee662aa531cb19657b951e97&per_page=20&page=2&format=json&nojsoncallback=1'
+    const recentPhoto = 'https://www.flickr.com/services/rest/?method=flickr.photos.getRecent&api_key=067a39dcee662aa531cb19657b951e97&per_page=10&page=2&format=json&nojsoncallback=1'
     useEffect(() => {
-        const result = getdata();
+        getCache();
+        getdata();
     }, [])
+
+    const getCache = async () => {
+        const passArray = await JSON.parse(await AsyncStorage.getItem('url'));
+        setImages(passArray);
+    }
 
     const getdata = async () => {
         const result = await fetch(recentPhoto)
@@ -25,20 +31,16 @@ const HomePage = () => {
             const url = urls[urls.length - 1].source
             urlArray.current.push(url)
         }
-        const tempUrlArray=urlArray.current
-        const imageJson= JSON.stringify(tempUrlArray);
-        const cachedJson=  await AsyncStorage.getItem('url');
-        console.log(cachedJson)
-        if(cachedJson===imageJson){
+        const tempUrlArray = urlArray.current
+        const imageJson = JSON.stringify(tempUrlArray);
+        const cachedJson = await AsyncStorage.getItem('url');
+        if (cachedJson === imageJson) {
             console.log('no change!')
-            // return 0;
-            // setImages([imageJson]);
-        }else{
+            return 0;
+        } else {
             console.log('change!', imageJson)
-            // console.log('ram', imageJson);
             await AsyncStorage.setItem('url', imageJson);
-            const passArray= await JSON.parse(await AsyncStorage.getItem('url'));
-            console.log('state: ', Array);
+            const passArray = await JSON.parse(await AsyncStorage.getItem('url'));
             setImages(passArray);
         }
     }
@@ -49,8 +51,8 @@ const HomePage = () => {
             end={{ x: 1, y: 1 }}
             style={styles.container}
         >
-            <ScrollView style={{ }} contentContainerStyle={{justifyContent:'space-evenly', flexDirection:'row', flexWrap:'wrap'}} >
-                { images && images.map((item, index)=>(
+            <ScrollView style={{}} contentContainerStyle={{ justifyContent: 'space-evenly', flexDirection: 'row', flexWrap: 'wrap' }} >
+                {images && images.map((item, index) => (
                     <PhotoItem uri={item} key={index} />
                 ))}
             </ScrollView>
