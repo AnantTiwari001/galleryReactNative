@@ -66,11 +66,12 @@ const HomePage = () => {
     }
 
     const searchFunc= async()=>{
-        const result= await fetch('https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=067a39dcee662aa531cb19657b951e97&text=ram&format=json&nojsoncallback=1')
+        const result= await fetch(`https://www.flickr.com/services/rest/?method=flickr.photos.search&api_key=067a39dcee662aa531cb19657b951e97&text=${searchText}&format=json&nojsoncallback=1`)
         const data= await result.text();
         const images = (await JSON.parse(data)).photos.photo;
         console.log('search: ', images);
         const tempArray=[];
+        setSearchText('')
         for (let i = 0; i < images.length; i++) {
             const id = images[i].id;
             const sizesUrl = `https://www.flickr.com/services/rest/?method=flickr.photos.getSizes&api_key=067a39dcee662aa531cb19657b951e97&photo_id=${id}&format=json&nojsoncallback=1`;
